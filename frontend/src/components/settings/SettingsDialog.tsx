@@ -69,7 +69,6 @@ function SettingsDialog({ settings, setSettings }: Props) {
             <AccordionItem value="item-1">
               <AccordionTrigger>AzureOpenAI Config</AccordionTrigger>
               <AccordionContent className="space-y-4 flex flex-col">
-
                 <div className="flex items-center justify-between">
                   <Label htmlFor="azure-openai-api-key">
                     <div>Azure OpenAI API key</div>
@@ -145,6 +144,28 @@ function SettingsDialog({ settings, setSettings }: Props) {
                       setSettings((s) => ({
                         ...s,
                         azureOpenAiApiVersion: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="azure-openai-model-ids">
+                    <div>Azure OpenAI Model IDs (comma separated)</div>
+                    <div className="font-light mt-1 text-xs leading-relaxed">
+                      Enter comma-separated model deployment names (e.g., gpt-4o, gpt-4-turbo, gpt-35-turbo)
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="azure-openai-model-ids"
+                    placeholder="gpt-4o, gpt-4-turbo, gpt-35-turbo"
+                    value={settings.azureOpenAiModelIds || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        azureOpenAiModelIds: e.target.value,
                       }))
                     }
                   />

@@ -28,6 +28,9 @@ class Llm(Enum):
     O1_2024_12_17 = "o1-2024-12-17"
     O4_MINI_2025_04_16 = "o4-mini-2025-04-16"
     O3_2025_04_16 = "o3-2025-04-16"
+    GPT_4_O = "gpt-4o"
+    CLAUDE_3_7_SONNET_AT_2025_02_19 = "claude-3-7-sonnet@20250219"
+    CLAUDE_4_SONNET = "claude-sonnet-4@20250514"
 
 
 class Completion(TypedDict):

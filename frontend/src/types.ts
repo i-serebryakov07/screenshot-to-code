@@ -13,6 +13,7 @@ export interface Settings {
   azureOpenAiEndpoint: string | null;
   azureOpenAiDeployment: string | null;
   azureOpenAiApiVersion: string | null;
+  azureOpenAiModelIds: string | null;
   screenshotOneApiKey: string | null;
   isImageGenerationEnabled: boolean;
   editorTheme: EditorTheme;

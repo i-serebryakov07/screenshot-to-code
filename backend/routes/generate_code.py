@@ -212,6 +212,7 @@ class ExtractedParams:
     azure_openai_endpoint: str | None
     azure_openai_deployment: str | None
     azure_openai_api_version: str | None
+    azure_openai_variant_model_ids: str | None
     anthropic_api_key: str | None
     openai_base_url: str | None
     generation_type: Literal["create", "update"]
@@ -257,6 +258,9 @@ class ParameterExtractionStage:
         azure_openai_api_version = self._get_from_settings_dialog_or_env(
             params, "azureOpenAiApiVersion", AZURE_OPENAI_API_VERSION
         )
+        azure_openai_variant_model_ids = self._get_from_settings_dialog_or_env(
+            params, "azureOpenAiModelIds", AZURE_OPENAI_DEPLOYMENT
+        )
 
         # If neither is provided, we throw an error later only if Claude is used.
         anthropic_api_key = self._get_from_settings_dialog_or_env(
@@ -292,6 +296,7 @@ class ParameterExtractionStage:
             azure_openai_endpoint=azure_openai_endpoint,
             azure_openai_deployment=azure_openai_deployment,
             azure_openai_api_version=azure_openai_api_version,
+            azure_openai_variant_model_ids=azure_openai_variant_model_ids,
             anthropic_api_key=anthropic_api_key,
             openai_base_url=openai_base_url,
             generation_type=generation_type,
@@ -325,16 +330,21 @@ class ModelSelectionStage:
         openai_api_key: str | None,
         anthropic_api_key: str | None,
         gemini_api_key: str | None = None,
+        azure_openai_key: str | None = None,
+        azure_openai_variant_model_ids: str | None = None,
     ) -> List[Llm]:
         """Select appropriate models based on available API keys"""
         try:
-            variant_models = self._get_variant_models(
-                generation_type,
-                NUM_VARIANTS,
-                openai_api_key,
-                anthropic_api_key,
-                gemini_api_key,
-            )
+            if azure_openai_key and azure_openai_variant_model_ids:
+                variant_models = self._parse_values_to_enum_list(raw=azure_openai_variant_model_ids)
+            else:
+                variant_models = self._get_variant_models(
+                    generation_type,
+                    NUM_VARIANTS,
+                    openai_api_key,
+                    anthropic_api_key,
+                    gemini_api_key,
+                )
 
             # Print the variant models (one per line)
             print("Variant models:")
@@ -349,6 +359,20 @@ class ModelSelectionStage:
                 "If you add it to .env, make sure to restart the backend server."
             )
             raise Exception("No OpenAI or Anthropic key")
+
+    def _parse_values_to_enum_list(self, raw: str) -> List[Llm]:
+        parts = [tok.strip() for tok in raw.split(",") if tok.strip()]
+        result: List[Llm] = []
+
+        for val in parts:
+            try:
+                member = Llm(val)
+                result.append(member)
+            except ValueError:
+                # val isn’t one of the enum values – skip or handle as you like
+                continue
+
+        return result
 
     def _get_variant_models(
         self,
@@ -679,11 +703,12 @@ class ParallelGenerationStage:
                 and self.azure_openai_endpoint
                 and self.azure_openai_deployment
             ):
+                print("model_name:::", model_name)
                 return await stream_azure_openai_response(
                     prompt_messages,
                     api_key=self.azure_openai_api_key,
                     endpoint=self.azure_openai_endpoint,
-                    deployment=self.azure_openai_deployment,
+                    deployment=model_name or self.azure_openai_deployment,
                     api_version=self.azure_openai_api_version or "2023-07-01-preview",
                     callback=lambda x: self._process_chunk(x, index),
                 )
@@ -865,8 +890,12 @@ class StatusBroadcastMiddleware(Middleware):
     async def process(
         self, context: PipelineContext, next_func: Callable[[], Awaitable[None]]
     ) -> None:
+        if context.extracted_params.azure_openai_variant_model_ids:
+            num_variants = len(context.extracted_params.azure_openai_variant_model_ids.split(","))
+        else:
+            num_variants = NUM_VARIANTS
         # Tell frontend how many variants we're using
-        await context.send_message("variantCount", str(NUM_VARIANTS), 0)
+        await context.send_message("variantCount", str(num_variants), 0)
 
         for i in range(NUM_VARIANTS):
             await context.send_message("status", "Generating code...", i)
@@ -929,7 +958,12 @@ class CodeGenerationMiddleware(Middleware):
                         ),
                         anthropic_api_key=context.extracted_params.anthropic_api_key,
                         gemini_api_key=GEMINI_API_KEY,
+                        azure_openai_key=context.extracted_params.azure_openai_api_key,
+                        azure_openai_variant_model_ids=context.extracted_params.azure_openai_variant_model_ids,
                     )
+
+                    print("context.variant_models::")
+                    print(context.variant_models)
 
                     # Generate code for all variants
                     generation_stage = ParallelGenerationStage(
