@@ -1,9 +1,18 @@
-from config import ANTHROPIC_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY
+from config import (
+    ANTHROPIC_API_KEY,
+    GEMINI_API_KEY,
+    OPENAI_API_KEY,
+    AZURE_OPENAI_API_KEY,
+    AZURE_OPENAI_ENDPOINT,
+    AZURE_OPENAI_DEPLOYMENT,
+    AZURE_OPENAI_API_VERSION,
+)
 from llm import Llm
 from models import (
     stream_claude_response,
     stream_gemini_response,
     stream_openai_response,
+    stream_azure_openai_response,
 )
 from prompts import assemble_prompt
 from prompts.types import Stack
@@ -56,15 +65,25 @@ async def generate_code_core(
             model_name=model.value,
         )
     else:
-        if not OPENAI_API_KEY:
-            raise Exception("OpenAI API key not found")
+        if AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_DEPLOYMENT:
+            completion = await stream_azure_openai_response(
+                prompt_messages,
+                api_key=AZURE_OPENAI_API_KEY,
+                endpoint=AZURE_OPENAI_ENDPOINT,
+                deployment=AZURE_OPENAI_DEPLOYMENT,
+                api_version=AZURE_OPENAI_API_VERSION,
+                callback=lambda x: process_chunk(x),
+            )
+        else:
+            if not OPENAI_API_KEY:
+                raise Exception("OpenAI API key not found")
 
-        completion = await stream_openai_response(
-            prompt_messages,
-            api_key=OPENAI_API_KEY,
-            base_url=None,
-            callback=lambda x: process_chunk(x),
-            model_name=model.value,
-        )
+            completion = await stream_openai_response(
+                prompt_messages,
+                api_key=OPENAI_API_KEY,
+                base_url=None,
+                callback=lambda x: process_chunk(x),
+                model_name=model.value,
+            )
 
     return completion["code"]
