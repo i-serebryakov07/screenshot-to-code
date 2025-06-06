@@ -70,7 +70,7 @@ async def stream_claude_response(
     temperature = 0.0
 
     # Claude 3.7 Sonnet can support higher max tokens
-    if model_name == "claude-3-7-sonnet-20250219":
+    if model_name == Llm.CLAUDE_3_7_SONNET_2025_02_19.value:
         max_tokens = 20000
 
     # Translate OpenAI messages to Claude messages
@@ -129,7 +129,7 @@ async def stream_claude_response_native(
     api_key: str,
     callback: Callable[[str], Awaitable[None]],
     include_thinking: bool = False,
-    model_name: str = "claude-3-7-sonnet-20250219",
+    model_name: str = Llm.CLAUDE_3_7_SONNET_2025_02_19.value,
 ) -> Completion:
     start_time = time.time()
     client = AsyncAnthropic(api_key=api_key)
