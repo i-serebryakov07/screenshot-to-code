@@ -13,6 +13,10 @@ from config import (
     NUM_VARIANTS,
     OPENAI_API_KEY,
     OPENAI_BASE_URL,
+    AZURE_OPENAI_API_KEY,
+    AZURE_OPENAI_ENDPOINT,
+    AZURE_OPENAI_DEPLOYMENT,
+    AZURE_OPENAI_API_VERSION,
     REPLICATE_API_KEY,
     SHOULD_MOCK_AI_RESPONSE,
 )
@@ -22,6 +26,7 @@ from models import (
     stream_claude_response,
     stream_claude_response_native,
     stream_openai_response,
+    stream_azure_openai_response,
     stream_gemini_response,
 )
 from fs_logging.core import write_logs
@@ -203,6 +208,10 @@ class ExtractedParams:
     input_mode: InputMode
     should_generate_images: bool
     openai_api_key: str | None
+    azure_openai_api_key: str | None
+    azure_openai_endpoint: str | None
+    azure_openai_deployment: str | None
+    azure_openai_api_version: str | None
     anthropic_api_key: str | None
     openai_base_url: str | None
     generation_type: Literal["create", "update"]
@@ -236,6 +245,19 @@ class ParameterExtractionStage:
             params, "openAiApiKey", OPENAI_API_KEY
         )
 
+        azure_openai_api_key = self._get_from_settings_dialog_or_env(
+            params, "azureOpenAiApiKey", AZURE_OPENAI_API_KEY
+        )
+        azure_openai_endpoint = self._get_from_settings_dialog_or_env(
+            params, "azureOpenAiEndpoint", AZURE_OPENAI_ENDPOINT
+        )
+        azure_openai_deployment = self._get_from_settings_dialog_or_env(
+            params, "azureOpenAiDeployment", AZURE_OPENAI_DEPLOYMENT
+        )
+        azure_openai_api_version = self._get_from_settings_dialog_or_env(
+            params, "azureOpenAiApiVersion", AZURE_OPENAI_API_VERSION
+        )
+
         # If neither is provided, we throw an error later only if Claude is used.
         anthropic_api_key = self._get_from_settings_dialog_or_env(
             params, "anthropicApiKey", ANTHROPIC_API_KEY
@@ -266,6 +288,10 @@ class ParameterExtractionStage:
             input_mode=validated_input_mode,
             should_generate_images=should_generate_images,
             openai_api_key=openai_api_key,
+            azure_openai_api_key=azure_openai_api_key,
+            azure_openai_endpoint=azure_openai_endpoint,
+            azure_openai_deployment=azure_openai_deployment,
+            azure_openai_api_version=azure_openai_api_version,
             anthropic_api_key=anthropic_api_key,
             openai_base_url=openai_base_url,
             generation_type=generation_type,
@@ -504,12 +530,20 @@ class ParallelGenerationStage:
         self,
         send_message: Callable[[MessageType, str, int], Coroutine[Any, Any, None]],
         openai_api_key: str | None,
+        azure_openai_api_key: str | None,
+        azure_openai_endpoint: str | None,
+        azure_openai_deployment: str | None,
+        azure_openai_api_version: str | None,
         openai_base_url: str | None,
         anthropic_api_key: str | None,
         should_generate_images: bool,
     ):
         self.send_message = send_message
         self.openai_api_key = openai_api_key
+        self.azure_openai_api_key = azure_openai_api_key
+        self.azure_openai_endpoint = azure_openai_endpoint
+        self.azure_openai_deployment = azure_openai_deployment
+        self.azure_openai_api_version = azure_openai_api_version
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
         self.should_generate_images = should_generate_images
@@ -630,6 +664,19 @@ class ParallelGenerationStage:
     ) -> Completion:
         """Wrap OpenAI streaming with specific error handling"""
         try:
+            if (
+                self.azure_openai_api_key
+                and self.azure_openai_endpoint
+                and self.azure_openai_deployment
+            ):
+                return await stream_azure_openai_response(
+                    prompt_messages,
+                    api_key=self.azure_openai_api_key,
+                    endpoint=self.azure_openai_endpoint,
+                    deployment=self.azure_openai_deployment,
+                    api_version=self.azure_openai_api_version or "2023-07-01-preview",
+                    callback=lambda x: self._process_chunk(x, index),
+                )
             assert self.openai_api_key is not None
             return await stream_openai_response(
                 prompt_messages,
@@ -866,7 +913,10 @@ class CodeGenerationMiddleware(Middleware):
                     model_selector = ModelSelectionStage(context.throw_error)
                     context.variant_models = await model_selector.select_models(
                         generation_type=context.extracted_params.generation_type,
-                        openai_api_key=context.extracted_params.openai_api_key,
+                        openai_api_key=(
+                            context.extracted_params.openai_api_key
+                            or context.extracted_params.azure_openai_api_key
+                        ),
                         anthropic_api_key=context.extracted_params.anthropic_api_key,
                         gemini_api_key=GEMINI_API_KEY,
                     )
@@ -875,6 +925,10 @@ class CodeGenerationMiddleware(Middleware):
                     generation_stage = ParallelGenerationStage(
                         send_message=context.send_message,
                         openai_api_key=context.extracted_params.openai_api_key,
+                        azure_openai_api_key=context.extracted_params.azure_openai_api_key,
+                        azure_openai_endpoint=context.extracted_params.azure_openai_endpoint,
+                        azure_openai_deployment=context.extracted_params.azure_openai_deployment,
+                        azure_openai_api_version=context.extracted_params.azure_openai_api_version,
                         openai_base_url=context.extracted_params.openai_base_url,
                         anthropic_api_key=context.extracted_params.anthropic_api_key,
                         should_generate_images=context.extracted_params.should_generate_images,
