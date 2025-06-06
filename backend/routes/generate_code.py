@@ -591,6 +591,16 @@ class ParallelGenerationStage:
 
         for index, model in enumerate(variant_models):
             if (
+                self.azure_openai_api_key and self.azure_openai_deployment and self.azure_openai_endpoint
+            ):
+                tasks.append(
+                    self._stream_openai_with_error_handling(
+                        prompt_messages,
+                        model_name=model.value,
+                        index=index,
+                    )
+                )
+            elif (
                 model == Llm.GPT_4O_2024_11_20
                 or model == Llm.O1_2024_12_17
                 or model == Llm.O4_MINI_2025_04_16

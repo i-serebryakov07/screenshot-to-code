@@ -65,148 +65,177 @@ function SettingsDialog({ settings, setSettings }: Props) {
           />
         </div>
         <div className="flex flex-col space-y-6">
-          <div>
-            <Label htmlFor="openai-api-key">
-              <div>OpenAI API key</div>
-              <div className="font-light mt-1 mb-2 text-xs leading-relaxed">
-                Only stored in your browser. Never stored on servers. Overrides
-                your .env config.
-              </div>
-            </Label>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>AzureOpenAI Config</AccordionTrigger>
+              <AccordionContent className="space-y-4 flex flex-col">
 
-            <Input
-              id="openai-api-key"
-              placeholder="OpenAI API key"
-              value={settings.openAiApiKey || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  openAiApiKey: e.target.value,
-                }))
-              }
-            />
-          </div>
-
-          {!IS_RUNNING_ON_CLOUD && (
-            <div>
-              <Label htmlFor="openai-api-key">
-                <div>OpenAI Base URL (optional)</div>
-                <div className="font-light mt-2 leading-relaxed">
-                  Replace with a proxy URL if you don't want to use the default.
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="azure-openai-api-key">
+                    <div>Azure OpenAI API key</div>
+                    <div className="font-light mt-1 text-xs leading-relaxed">
+                      Only stored in your browser. Never stored on servers. Overrides
+                      your .env config.
+                    </div>
+                  </Label>
                 </div>
-              </Label>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="azure-openai-api-key"
+                    placeholder="Azure OpenAI API key"
+                    value={settings.azureOpenAiApiKey || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        azureOpenAiApiKey: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
 
-              <Input
-                id="openai-base-url"
-                placeholder="OpenAI Base URL"
-                value={settings.openAiBaseURL || ""}
-                onChange={(e) =>
-                  setSettings((s) => ({
-                    ...s,
-                    openAiBaseURL: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          )}
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="azure-openai-endpoint">
+                    <div>Azure OpenAI Endpoint</div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="azure-openai-endpoint"
+                    placeholder="Azure OpenAI Endpoint"
+                    value={settings.azureOpenAiEndpoint || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        azureOpenAiEndpoint: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
 
-          <div>
-            <Label htmlFor="azure-openai-api-key">
-              <div>Azure OpenAI API key</div>
-              <div className="font-light mt-1 text-xs leading-relaxed">
-                Only stored in your browser. Never stored on servers. Overrides
-                your .env config.
-              </div>
-            </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="azure-openai-deployment">
+                    <div>Azure OpenAI Deployment</div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="azure-openai-deployment"
+                    placeholder="Azure OpenAI Deployment"
+                    value={settings.azureOpenAiDeployment || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        azureOpenAiDeployment: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
 
-            <Input
-              id="azure-openai-api-key"
-              placeholder="Azure OpenAI API key"
-              value={settings.azureOpenAiApiKey || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  azureOpenAiApiKey: e.target.value,
-                }))
-              }
-            />
-          </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="azure-openai-api-version">
+                    <div>Azure OpenAI API Version (optional)</div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="azure-openai-api-version"
+                    placeholder="Azure OpenAI API Version"
+                    value={settings.azureOpenAiApiVersion || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        azureOpenAiApiVersion: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-          <div>
-            <Label htmlFor="azure-openai-endpoint">
-              <div>Azure OpenAI Endpoint</div>
-            </Label>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>OpenAI Config</AccordionTrigger>
+              <AccordionContent className="space-y-4 flex flex-col">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="openai-api-key">
+                    <div>OpenAI API key</div>
+                    <div className="font-light mt-1 mb-2 text-xs leading-relaxed">
+                      Only stored in your browser. Never stored on servers. Overrides
+                      your .env config.
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="openai-api-key"
+                    placeholder="OpenAI API key"
+                    value={settings.openAiApiKey || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        openAiApiKey: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
 
-            <Input
-              id="azure-openai-endpoint"
-              placeholder="Azure OpenAI Endpoint"
-              value={settings.azureOpenAiEndpoint || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  azureOpenAiEndpoint: e.target.value,
-                }))
-              }
-            />
-          </div>
+                {!IS_RUNNING_ON_CLOUD && (<>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="openai-api-key">
+                      <div>OpenAI Base URL (optional)</div>
+                      <div className="font-light mt-2 leading-relaxed">
+                        Replace with a proxy URL if you don't want to use the default.
+                      </div>
+                    </Label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Input
+                      id="openai-base-url"
+                      placeholder="OpenAI Base URL"
+                      value={settings.openAiBaseURL || ""}
+                      onChange={(e) =>
+                        setSettings((s) => ({
+                          ...s,
+                          openAiBaseURL: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </>)}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-          <div>
-            <Label htmlFor="azure-openai-deployment">
-              <div>Azure OpenAI Deployment</div>
-            </Label>
-
-            <Input
-              id="azure-openai-deployment"
-              placeholder="Azure OpenAI Deployment"
-              value={settings.azureOpenAiDeployment || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  azureOpenAiDeployment: e.target.value,
-                }))
-              }
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="azure-openai-api-version">
-              <div>Azure OpenAI API Version (optional)</div>
-            </Label>
-
-            <Input
-              id="azure-openai-api-version"
-              placeholder="Azure OpenAI API Version"
-              value={settings.azureOpenAiApiVersion || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  azureOpenAiApiVersion: e.target.value,
-                }))
-              }
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="anthropic-api-key">
-              <div>Anthropic API key</div>
-              <div className="font-light mt-1 text-xs leading-relaxed">
-                Only stored in your browser. Never stored on servers. Overrides
-                your .env config.
-              </div>
-            </Label>
-
-            <Input
-              id="anthropic-api-key"
-              placeholder="Anthropic API key"
-              value={settings.anthropicApiKey || ""}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  anthropicApiKey: e.target.value,
-                }))
-              }
-            />
-          </div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Anthropic config</AccordionTrigger>
+              <AccordionContent className="space-y-4 flex flex-col">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="anthropic-api-key">
+                    <div>Anthropic API key</div>
+                    <div className="font-light mt-1 text-xs leading-relaxed">
+                      Only stored in your browser. Never stored on servers. Overrides
+                      your .env config.
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Input
+                    id="anthropic-api-key"
+                    placeholder="Anthropic API key"
+                    value={settings.anthropicApiKey || ""}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        anthropicApiKey: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
