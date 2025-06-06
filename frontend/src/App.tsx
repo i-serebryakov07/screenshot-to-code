@@ -63,6 +63,10 @@ function App() {
     {
       openAiApiKey: null,
       openAiBaseURL: null,
+      azureOpenAiApiKey: null,
+      azureOpenAiEndpoint: null,
+      azureOpenAiDeployment: null,
+      azureOpenAiApiVersion: null,
       anthropicApiKey: null,
       screenshotOneApiKey: null,
       isImageGenerationEnabled: true,

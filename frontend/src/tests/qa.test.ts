@@ -164,6 +164,10 @@ class App {
     const setting = {
       openAiApiKey: null,
       openAiBaseURL: null,
+      azureOpenAiApiKey: null,
+      azureOpenAiEndpoint: null,
+      azureOpenAiDeployment: null,
+      azureOpenAiApiVersion: null,
       screenshotOneApiKey: process.env.TEST_SCREENSHOTONE_API_KEY,
       isImageGenerationEnabled: true,
       editorTheme: "cobalt",

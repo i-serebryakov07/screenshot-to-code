@@ -111,6 +111,82 @@ function SettingsDialog({ settings, setSettings }: Props) {
           )}
 
           <div>
+            <Label htmlFor="azure-openai-api-key">
+              <div>Azure OpenAI API key</div>
+              <div className="font-light mt-1 text-xs leading-relaxed">
+                Only stored in your browser. Never stored on servers. Overrides
+                your .env config.
+              </div>
+            </Label>
+
+            <Input
+              id="azure-openai-api-key"
+              placeholder="Azure OpenAI API key"
+              value={settings.azureOpenAiApiKey || ""}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  azureOpenAiApiKey: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="azure-openai-endpoint">
+              <div>Azure OpenAI Endpoint</div>
+            </Label>
+
+            <Input
+              id="azure-openai-endpoint"
+              placeholder="Azure OpenAI Endpoint"
+              value={settings.azureOpenAiEndpoint || ""}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  azureOpenAiEndpoint: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="azure-openai-deployment">
+              <div>Azure OpenAI Deployment</div>
+            </Label>
+
+            <Input
+              id="azure-openai-deployment"
+              placeholder="Azure OpenAI Deployment"
+              value={settings.azureOpenAiDeployment || ""}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  azureOpenAiDeployment: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="azure-openai-api-version">
+              <div>Azure OpenAI API Version (optional)</div>
+            </Label>
+
+            <Input
+              id="azure-openai-api-version"
+              placeholder="Azure OpenAI API Version"
+              value={settings.azureOpenAiApiVersion || ""}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  azureOpenAiApiVersion: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
             <Label htmlFor="anthropic-api-key">
               <div>Anthropic API key</div>
               <div className="font-light mt-1 text-xs leading-relaxed">
