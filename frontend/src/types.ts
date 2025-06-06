@@ -9,6 +9,10 @@ export enum EditorTheme {
 export interface Settings {
   openAiApiKey: string | null;
   openAiBaseURL: string | null;
+  azureOpenAiApiKey: string | null;
+  azureOpenAiEndpoint: string | null;
+  azureOpenAiDeployment: string | null;
+  azureOpenAiApiVersion: string | null;
   screenshotOneApiKey: string | null;
   isImageGenerationEnabled: boolean;
   editorTheme: EditorTheme;
